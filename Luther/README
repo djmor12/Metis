@@ -3,3 +3,5 @@ Project 2
 The goal of this project is to use linear regression on a problem of the students choice.  I wanted to predict the amount of views a ted talk will get after it has reached the end of its vide lifecycle.  I assumed for the majority, that would be about a year after its been published online, however there are some outliers where that is not the case.
 
 The findings are that the tad talks would get more views if the audience interpreted them as 'Fascinating'.  The tags with the haighest mean fascinating rating are: Biology, Brain, Science, and History.  Also, the number of languages that the video was available in had an affect as well.  The more languages you have, the broader you audience will be.  The presentation is in the folder, labeled Project Luther.
+
+I used kaggle data, and supplemented with some more data pulled from ted.com.  The Luther Kaggle Data ipython is where the all the data wrangling and analysis happen. The Project Luther file is where I set up webscraping to pull information from ted.com.  
