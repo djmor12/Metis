@@ -1,7 +1,0 @@
-The purpose of the Mcnulty project is to create a classification machine learning algorithm, and then present your algorithm using slides, a Flask app and a visualization.  The presentation can be found:
-
-https://docs.google.com/presentation/d/1_l2F3ftCAWWhgFw2RFTYl5MzIsyj1yL-USwlk4HAJKQ/edit#slide=id.g37c46c1360_0_3
-
-My project used the Kaggle Talking Data dataset published 2 years ago.  It consists of mobile application user data from Chinese cell phone makers.  The data was pretty large, having to be divided up into 5 different CSV files.  The overall combined amount of observations from this dataset was upwards of 79 million.  The project here focused on Chinese users, and the goal was to create a relieable model for long term prediction of age and gender of each device user.  
-
-I focuesed on 4 features: Phone Brand, Application ID, Day of the Week, and Whether or not the user was active on the app.  I ended with a AUC of .71, using Catboost to optimize a decision tree model.
