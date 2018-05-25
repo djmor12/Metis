@@ -77,8 +77,8 @@
     <h2 class="feature">Recommended Tea Type: <span id="model">Green</span></h2>
     <div id="model_dropdown"><select id="dropdown2"></select></div>
 
-    <h2 class="feature">City: <span id="city">Finance</span></h2>
-    <div id="city_dropdown">  <select id="dropdown3"></select></div>
+    <h2 class="feature">Flavor Profile: <span id="city">(Select below)</span></h2>
+    <div id="city_dropdown"> 
   </div>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -86,7 +86,7 @@
   <script src = "static/mod_dd.js"></script>
   <script src = "static/cad.js"></script>
   <svg width="960" height="500"></svg>
-  
+
 <body>
 
 
@@ -199,6 +199,7 @@
                 .attr("fill", "white")
                 .attr("font-size", 60)
                 .text(current_class);
+
                 var svg = d3.select("svg"),
                     width = +svg.attr("width"),
                     height = +svg.attr("height"),
