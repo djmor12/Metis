@@ -3,6 +3,9 @@ import gensim
 import os
 import collections
 import smart_open
+import flask
+from flask import Flask
+import pickle
 import random
 from surprise import SVDpp,SVD
 from surprise import Dataset
@@ -24,7 +27,7 @@ with open('/Users/deven/Documents/pickleddata/projectfletcher/btrain.pkl', 'rb')
     btrain = pickle.load(picklefile)
 
 #changing some tea names for easier calls
-itemdf = pd.DataFrame(tea_list)
+itemdf = pd.DataFrame(itemdf)
 newname=[]
 import re
 
@@ -105,6 +108,13 @@ def getBookrec(iid):
             rec = bookt[ind-1]
             break
     return rec
+@app.route("/")
+def viz_page():
+    """
+    Homepage: serve our visualization page
+    """
+    with open("index.html", 'r') as viz_file:
+        return viz_file.read()
 
 @app.route("/score", methods=["POST"])
 def score():

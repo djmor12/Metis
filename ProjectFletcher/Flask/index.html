@@ -175,7 +175,7 @@
                         rec2 = "2. "+data["tearec2"];
                         rec3 = "3. "+data["tearec3"];
                         bookrec = data["bookrec"];
-                        bookrec = data["img"];
+                        bookimg = data["img"];
                           d3.select("#rec1")
                             .text(rec1);
                           d3.select("#rec2")
@@ -184,7 +184,7 @@
                               .text(rec3);
                           d3.select("#bookr")
                               .text(bookrec);
-                          d3.select("#bookimg")
+                          d3.select("#mySvg")
                               .attr("xlink:href", bookimg);
                         },
                         error: function (result) {
