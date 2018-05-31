@@ -7,6 +7,7 @@ import flask
 from flask import Flask
 import pickle
 import random
+from sklearn.metrics.pairwise import euclidean_distances
 from surprise import SVDpp,SVD
 from surprise import Dataset
 from surprise import Reader
@@ -22,7 +23,7 @@ app = flask.Flask(__name__)
 with open('/Users/deven/Documents/pickleddata/projectfletcher/newdatalist.pkl', 'rb') as picklefile:
     itemdf = pickle.load(picklefile)
 with open('/Users/deven/Documents/GitHub/Metis/ProjectFletcher/surprise_data.pkl', 'rb') as picklefile:
-    surprisedf = pickle.load(picklefile)
+    newdf = pickle.load(picklefile)
 with open('/Users/deven/Documents/pickleddata/projectfletcher/btrain.pkl', 'rb') as picklefile:
     btrain = pickle.load(picklefile)
 
@@ -51,14 +52,14 @@ imagelocs = {'Emma by Jane Austen':'static/emma.jpg','Persuassion by Jane Austen
 
 #Call function for top ratings
 from collections import defaultdict
-def get_top_n(teaid,score, n=10):
+def get_top_n(teaid,score,qq, n=10):
     #Surprise SVD
     # A reader is still needed but only the rating_scale param is requiered.
-    newdf = pd.concat([newdf,pd.DataFrame([[score,teaid, 'user1']], columns = ['Score', 'Tea Name', 'User Name'])], ignore_index=True)
+    qq = pd.concat([qq,pd.DataFrame([[score,teaid, 'user1']], columns = ['Score', 'Tea Name', 'User Name'])], ignore_index=True)
     reader = Reader(rating_scale=(0, 100))
     algo=SVD()
     # The columns must correspond to user id, item id and ratings (in that order).
-    data = Dataset.load_from_df(newdf[['User Name', 'Tea Name', 'Score']], reader)
+    data = Dataset.load_from_df(qq[['User Name', 'Tea Name', 'Score']], reader)
     trainset = data.build_full_trainset()
     algo.fit(trainset)
 
@@ -75,7 +76,8 @@ def get_top_n(teaid,score, n=10):
     A dict where keys are user (raw) ids and values are lists of tuples:
         [(raw item id, rating estimation), ...] of size n.
     '''
-
+    testset = trainset.build_anti_testset()
+    predictions = algo.test(testset)
     # First map the predictions to each user.
     top_n = defaultdict(list)
     for uid, iid, true_r, est, _ in predictions:
@@ -88,7 +90,7 @@ def get_top_n(teaid,score, n=10):
     teadist = []
     mindist = []
     for i in top_n['user1']:
-        eudis=(euclidean_distances(itemdf[itemdf['Tea Name']==id]['Flavor Profile Reviews'], \
+        eudis=(euclidean_distances(itemdf[itemdf['Tea Name']==teaid]['Flavor Profile Reviews'], \
         itemdf[itemdf['Tea Name']==i[0]]['Flavor Profile Reviews']))
         teadist.append((i[0],eudist))
     mindist = sorted(teadist, key=lambda x:x[1])
@@ -126,7 +128,7 @@ def score():
     # Get decision score for our example that came with the request
     data = flask.request.json
     x = data["example"]
-    rec1,rec2,rec3 = get_top_n(x[0],x[2])
+    rec1,rec2,rec3 = get_top_n(x[0],x[2], newdf)
     bookrec= getBookrec(x[0])
     imgrec = imageloc[bookrec]
     # Put the result in a nice dict so we can send it as json

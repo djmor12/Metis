@@ -69,11 +69,11 @@
   #chart_area {
     width: 300px;
     float:left;
-    margin-left: 450px;
+    margin-left: 200px;
   }
   #Book_rec {
-    float: right;
-    overflow: hidden; /* if you don't want #second to wrap below #first */
+    float: middle; /* if you don't want #second to wrap below #first */
+    margin-left: 800px;
 }
 
     </style>
@@ -171,9 +171,9 @@
                         async: true,
                         data: JSON.stringify({"example": [tea,type,score]}),
                         success: function (data) {
-                        rec1 = "1. "+data["tearec1"];
-                        rec2 = "2. "+data["tearec2"];
-                        rec3 = "3. "+data["tearec3"];
+                        rec1 = ("1. "+data["tearec1"]);
+                        rec2 = ("2. "+data["tearec2"]);
+                        rec3 = ("3. "+data["tearec3"]);
                         bookrec = data["bookrec"];
                         bookimg = data["img"];
                           d3.select("#rec1")
