@@ -43,15 +43,16 @@
      }
 
      .wrapper {
-       width: 800px;
-       margin-left: 100px;
-       margin-right: 10px;
+       width: 900px;
+       margin-left: auto;
+       margin-right: auto;
        margin-bottom: 0px;
        font-size: 1.2em;
      }
 
      #bar_chart {
        margin-bottom: 0 px;
+       margin-left: 20 px;
      }
 
      .bar {
@@ -72,13 +73,13 @@
   </div>
 
   <div id="dropdown" class="wrapper">
-    <h2 class="feature">Favorite Tea: <span id="brand">Clouds & Mist</span></h2>
+    <h2 class="feature">Favorite Tea: <span id="tea">Clouds & Mist</span></h2>
     <div id="brand_dropdown"><select id="dropdown1"></select></div>
 
-    <h2 class="feature">Recommended Tea Type: <span id="model">Green</span></h2>
+    <h2 class="feature">Recommended Tea Type: <span id="teatype">Green</span></h2>
     <div id="model_dropdown"><select id="dropdown2"></select></div>
 
-    <h2 class="feature">Score: <span id="city">(Select below)</span></h2>
+    <h2 class="feature">Score: <span id="score">(Select below)</span></h2>
     <div id="city_dropdown"><select id="dropdown3"></select></div>
   </div>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -95,11 +96,11 @@
         // populate drop-down
         d3.select("#dropdown1")
           .selectAll("option")
-          .data(drop_down)
+          .data(dropdown)
           .enter()
           .append("option")
           .attr("value", function(option) { return option.value; })
-          .text(function(option) { return option.value; });
+          .text(function(option) { return option.text; });
           // populate drop-down
           d3.select("#dropdown2")
             .selectAll("option")
@@ -122,9 +123,9 @@
         var type = 'Herbal';
         var score = 0;
         var cat = 'Laughing';
-        var current_class = 'M27-28';
-
-        var w = 700,
+        var current_class = 'Green Tea';
+        var uid = 'unknown'
+        var w = 750,
             h = 650;
 
       <!-- FUNCTION TO GET CHANCE FROM YOUR PREDICTOR WITH AsynchronsJavescriptAndXml, reduces overhead of communicating, AND CHANGE BAR  HEIGHT -->
@@ -136,7 +137,7 @@
                         url: "/score",
                         dataType: "json",
                         async: true,
-                        data: JSON.stringify({"example": [tea,type,score]}),
+                        data: JSON.stringify({"example": [uid,tea,type,score]}),
                         success: function (data) {
                         var current_class = data["score"];
                         var current_color = data["color"];
@@ -159,28 +160,28 @@
 
           tea = d3.select("#dropdown1").property("value");
           new_label = d3.select("#dropdown1").property("value");
-          d3.select('#brand').text(tea);
+          d3.select('#tea').text(new_label);
           getAndDrawChance(tea, type, score)
         });
         dropDown2.on("change", function() {
 
           type = d3.select("#dropdown2").property("value");
-          new_label = d3.select("#dropdown2").property("text");
-          d3.select('#model').text(new_label);
+          new_label = d3.select("#dropdown2").property("value");
+          d3.select('#teatype').text(new_label);
           getAndDrawChance(tea, type, score)
         });
         dropDown3.on("change", function() {
 
           score = d3.select("#dropdown3").property("value");
-          new_label = d3.select("#dropdown3").property("text");
-          d3.select('#model').text(new_label);
+          new_label = d3.select("#dropdown3").property('value');
+          d3.select('#score').text(new_label);
           getAndDrawChance(tea, type, score)
         });
 
 
         var chart = d3.select("#bar_chart")
                            .append("svg:svg")
-                           .attr("width", 800)
+                           .attr("width", 900)
                            .attr("height", 100);
 
              var bar = chart.append("g")
@@ -195,9 +196,9 @@
 
              bar.append("text")
                 .attr("id", "percent_text")
-                .attr("dy", ".75em")
+                .attr("dy", ".70em")
                 .attr("y", 30)
-                .attr("x", 155)
+                .attr("x", 175)
                 .attr("text-anchor", "middle")
                 .attr("fill", "white")
                 .attr("font-size", 60)

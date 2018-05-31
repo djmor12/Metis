@@ -8,6 +8,4 @@ var score = [
   {value: 65, text: '60-70'},
   {value: 75, text: '70-80'},
   {value: 85, text: '80-90'},
-  {value: 95, text: '90-100'}
-
-]
+  {value: 95, text: '90-100'}]
