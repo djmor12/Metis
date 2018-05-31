@@ -18,8 +18,10 @@ app = flask.Flask(__name__)
 #pulling in dataset, item list
 with open('/Users/deven/Documents/pickleddata/projectfletcher/newdatalist.pkl', 'rb') as picklefile:
     itemdf = pickle.load(picklefile)
-with open('surprise_data.pkl', 'rb') as picklefile:
+with open('/Users/deven/Documents/GitHub/Metis/ProjectFletcher/surprise_data.pkl', 'rb') as picklefile:
     surprisedf = pickle.load(picklefile)
+with open('/Users/deven/Documents/pickleddata/projectfletcher/btrain.pkl', 'rb') as picklefile:
+    btrain = pickle.load(picklefile)
 
 #changing some tea names for easier calls
 itemdf = pd.DataFrame(tea_list)
@@ -37,6 +39,12 @@ bookt = ['Emma by Jane Austen', 'Persuassion by Jane Austen', 'Sense and Sensibi
         'Alice in Wonderland by Lewis Carroll','The Ball and the Cross by G.K. Chesterton','The Wisdom of Father Brown by G.K. Chesterton'\
         'The Ball and the Cross by G.K. Chesterton', 'The Parents Assistant by Maria Edgeworth','Moby Dick by Herman Melville',\
         'Paradise Lost by John Milton', 'Shakespeares Works','Shakespeares Works','Shakespeares Works', 'Leaves of Grass by Walt Whitman']
+
+imagelocs = {'Emma by Jane Austen':'static/emma.jpg','Persuassion by Jane Austen':'static/persuassion.jpg','Sense and Sensibility by Jane Austen':'static/sense.jpg',\
+'Poems by William Blake':'static/blake.jpg','The Little People of the Snow by William Bryant':'static/bryant.jpg','The Adventures of Buster Bear by Thornton Burgress':'static/the-adventures-of-buster-bear.jpg',\
+'Alice in Wonderland by Lewis Carroll':'static/alice.jpg', 'The Ball and the Cross by G.K. Chesterton':'static/ball.jpg','The Wisdom of Father Brown by G.K. Chesterton':'static/fatherbrown.jpg',\
+'The Parents Assistant by Maria Edgeworth':'static/edge.jpg','Moby Dick by Herman Melville':'static/moby.jpg','Paradise Lost by John Milton':'static/paradise.jpg',\
+'Shakespeares Works':'static/shake.jpg','Shakespeares Works':'static/shake.jpg','Shakespeares Works':'static/shake.jpg','Leaves of Grass by Walt Whitman':'static/leaves.jpg'}
 
 #Call function for top ratings
 from collections import defaultdict
@@ -107,26 +115,12 @@ def score():
     """
     # Get decision score for our example that came with the request
     data = flask.request.json
-    color='#00dbfb'
     x = data["example"]
     rec1,rec2,rec3 = get_top_n(x[0],x[2])
     bookrec= getBookrec(x[0])
-    print(score)
-    list1=[]
-    for i in score[0]:
-        list1.append(i)
-    index, value = max(enumerate(list1), key=operator.itemgetter(1))
-    print(index)
-    clas = ['F23-', 'F24-26','F27-28','F29-32', 'F33-42', 'F43+', 'M22-', 'M23-26', 'M27-28', 'M29-31', 'M32-38', 'M39+']
-    label = clas[index]
-    if index <= 5:
-        color ='#FF75A3'
-    else:
-        color ='#00dbfb'
-    print(label)
-    print(color)
+    imgrec = imageloc[bookrec]
     # Put the result in a nice dict so we can send it as json
-    results = {"tearec1":rec1,"tearec2":rec2,"tearec3":rec3,"bookrec":bookrec}
+    results = {"tearec1":rec1,"tearec2":rec2,"tearec3":rec3,"bookrec":bookrec, 'img':img}
     return flask.jsonify(results)
 
 #--------- RUN WEB APP SERVER ------------#

@@ -25,13 +25,18 @@
             font-size: 1.2em;
         }
 
-        h3, h5 {
+    h3, h5 {
             margin: 0;
         }
-        body {
+    body {
        font-family: Verdana,Arial,sans-serif;
      }
-
+     h1 {
+       font-size: 2em;
+       margin: 20px 0 5px 0;
+       padding: 10px 0 10px 0;
+       color: Black
+     }
      h2 {
        font-size: 1.2em;
        margin: 60px 0 5px 0;
@@ -61,18 +66,23 @@
      span {
        color: steelblue;
      }
+  #chart_area {
+    width: 300px;
+    float:left;
+    margin-left: 450px;
+  }
+  #Book_rec {
+    float: right;
+    overflow: hidden; /* if you don't want #second to wrap below #first */
+}
 
     </style>
 
   <body>
-<div id="chart_area" class="wrapper">
-      <h2>Tea Recommendations</h2>
-      <p class="space"></p>
-      <div id="bar_chart">
-      </div>
-  </div>
+
 
   <div id="dropdown" class="wrapper">
+    <h1>Cozy App</h1>
     <h2 class="feature">Favorite Tea: <span id="tea">Clouds & Mist</span></h2>
     <div id="brand_dropdown"><select id="dropdown1"></select></div>
 
@@ -82,12 +92,27 @@
     <h2 class="feature">Score: <span id="score">(Select below)</span></h2>
     <div id="city_dropdown"><select id="dropdown3"></select></div>
   </div>
+  <div id="chart_area" class="wrapper">
+        <h2>Tea Recommendations</h2>
+        <p class="space"> </p>
+        <div id="bar_chart">
+        </div>
+    </div>
+    <div id="Book_rec" class="wrapper">
+          <h2>Book Rec <span id="bookr">Emma by Jane Austen</span></h2>
+          <p class="space"></p>
+          <div id="book">
+        <svg id="mySvg" width="300" height="220">
+
+          </div>
+      </div>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src = "static/drop_down.js"></script>
   <script src = "static/mod_dd.js"></script>
   <script src = "static/scoring.js"></script>
   <svg width="960" height="500"></svg>
+
 
 <body>
 
@@ -118,6 +143,10 @@
               .attr("value", function(option) { return option.value; })
               .text(function(option) { return option.text; });
 
+
+
+
+
         // initial dataset on load
         var tea = "Peppermint";
         var type = 'Herbal';
@@ -125,8 +154,12 @@
         var cat = 'Laughing';
         var current_class = 'Green Tea';
         var uid = 'unknown'
-        var w = 750,
-            h = 650;
+        var rec1 = '1. Black Tea'
+        var rec2 = '2. Green Tea'
+        var rec3 = '3. White Tea'
+        var bookrec = 'Emma by Jane Austen'
+        var bookimg = 'static/emma.jpg'
+
 
       <!-- FUNCTION TO GET CHANCE FROM YOUR PREDICTOR WITH AsynchronsJavescriptAndXml, reduces overhead of communicating, AND CHANGE BAR  HEIGHT -->
                     function getAndDrawChance(tea, type, score){
@@ -137,14 +170,23 @@
                         url: "/score",
                         dataType: "json",
                         async: true,
-                        data: JSON.stringify({"example": [uid,tea,type,score]}),
+                        data: JSON.stringify({"example": [tea,type,score]}),
                         success: function (data) {
-                        var current_class = data["score"];
-                        var current_color = data["color"];
-                          d3.select("#chancebar")
-                            .style("fill", current_color);
-                          d3.select("#percent_text")
-                            .text(current_class);
+                        rec1 = "1. "+data["tearec1"];
+                        rec2 = "2. "+data["tearec2"];
+                        rec3 = "3. "+data["tearec3"];
+                        bookrec = data["bookrec"];
+                        bookrec = data["img"];
+                          d3.select("#rec1")
+                            .text(rec1);
+                          d3.select("#rec2")
+                            .text(rec2);
+                            d3.select("#rec3")
+                              .text(rec3);
+                          d3.select("#bookr")
+                              .text(bookrec);
+                          d3.select("#bookimg")
+                              .attr("xlink:href", bookimg);
                         },
                         error: function (result) {
                         }
@@ -155,6 +197,10 @@
         var dropDown2 = d3.select("#dropdown2");
         var dropDown3 = d3.select("#dropdown3");
 
+        d3.selectAll("#mySvg").append("svg:image")
+        .attr("xlink:href", bookimg)
+        .attr("width", 300)
+        .attr("height", 200);
 
         dropDown.on("change", function() {
 
@@ -177,12 +223,15 @@
           d3.select('#score').text(new_label);
           getAndDrawChance(tea, type, score)
         });
-
+        var svg1 = d3.select('#book').append('svg').attr({
+          width: 300,
+          height: 220,
+        });
 
         var chart = d3.select("#bar_chart")
                            .append("svg:svg")
-                           .attr("width", 900)
-                           .attr("height", 100);
+                           .attr("width", 500)
+                           .attr("height", 220);
 
              var bar = chart.append("g")
                             .attr("class", "bar")
@@ -193,16 +242,33 @@
                 .attr("width", 800)
                 .attr("height", 500)
 
-
              bar.append("text")
-                .attr("id", "percent_text")
+                .attr("id", "rec1")
                 .attr("dy", ".70em")
                 .attr("y", 30)
-                .attr("x", 175)
-                .attr("text-anchor", "middle")
+                .attr("x", 10)
+                .attr("text-anchor", "left")
                 .attr("fill", "white")
                 .attr("font-size", 60)
-                .text(current_class);
+                .text(rec1);
+              bar.append("text")
+                   .attr("id", "rec2")
+                   .attr("dy", ".70em")
+                   .attr("y", 90)
+                   .attr("x", 10)
+                   .attr("text-anchor", "left")
+                   .attr("fill", "white")
+                   .attr("font-size", 60)
+                   .text(rec2);
+              bar.append("text")
+                      .attr("id", "rec3")
+                      .attr("dy", ".70em")
+                      .attr("y", 150)
+                      .attr("x", 10)
+                      .attr("text-anchor", "left")
+                      .attr("fill", "white")
+                      .attr("font-size", 60)
+                      .text(rec3);
 
 
     // references
