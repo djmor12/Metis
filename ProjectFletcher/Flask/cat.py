@@ -1,22 +1,76 @@
-import flask
-import json
-import numpy as np
-import operator
-from catboost import CatBoostRegressor, CatBoostClassifier, Pool
+import pandas as pd
+
+from surprise import NormalPredictor
+from surprise import SVDpp,SVD
+from surprise import Dataset
+from surprise import Reader
+import nltk
+import re
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 #import urllib2
 
 app = flask.Flask(__name__)
 
-#CatBoost
-model=CatBoostClassifier(iterations=20, depth=7, learning_rate=0.1, loss_function = 'MultiClass')
-model.load_model('catboost_model3.dump')
-@app.route("/")
-def viz_page():
-    """
-    Homepage: serve our visualization page
-    """
-    with open("index.html", 'r') as viz_file:
-        return viz_file.read()
+#pulling in dataset, item list
+with open('newdatalist.pkl', 'rb') as picklefile:
+    itemdf = pickle.load(picklefile)
+with open('surprise_data.pkl', 'rb') as picklefile:
+    surprisedf = pickle.load(picklefile)
+
+#changing some tea names for easier calls
+itemdf = pd.DataFrame(tea_list)
+newname=[]
+import re
+
+for i in itemdf['Tea Name']:
+    line = re.sub('[!@#$\'\",]', '', i)
+    newname.append(line)
+itemdf['Tea Name'] = newname
+
+
+
+#Call function for top ratings
+from collections import defaultdict
+def get_top_n(teaid,score, n=10):
+    #Surprise SVD
+    # A reader is still needed but only the rating_scale param is requiered.
+    newdf = pd.concat([newdf,pd.DataFrame([[score,teaid, 'user1']], columns = ['Score', 'Tea Name', 'User Name'])], ignore_index=True)
+    reader = Reader(rating_scale=(0, 100))
+    algo=SVD()
+    # The columns must correspond to user id, item id and ratings (in that order).
+    data = Dataset.load_from_df(newdf[['User Name', 'Tea Name', 'Score']], reader)
+    trainset = data.build_full_trainset()
+    algo.fit(trainset)
+
+
+    '''Return the top-N recommendation for each user from a set of predictions.
+
+    Args:
+        predictions(list of Prediction objects): The list of predictions, as
+            returned by the test method of an algorithm.
+        n(int): The number of recommendation to output for each user. Default
+            is 10.
+
+    Returns:
+    A dict where keys are user (raw) ids and values are lists of tuples:
+        [(raw item id, rating estimation), ...] of size n.
+    '''
+
+    # First map the predictions to each user.
+    top_n = defaultdict(list)
+    for uid, iid, true_r, est, _ in predictions:
+        top_n[uid].append((iid, est))
+
+    # Then sort the predictions for each user and retrieve the k highest ones.
+    for uid, user_ratings in top_n.items():
+        user_ratings.sort(key=lambda x: x[1], reverse=True)
+        top_n[uid] = user_ratings[:n]
+
+        eudis=(euclidean_distances(newteaprofiledf[itemdf['Tea Name']==i]['Flavor Profile Reviews'], \
+        newteaprofiledf[newteaprofiledf['Tea Name']==k[0]]['Flavor Profile Reviews']))
+    return top_n
+
 
 @app.route("/score", methods=["POST"])
 def score():
