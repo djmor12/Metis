@@ -1,6 +1,9 @@
 import pandas as pd
-
-from surprise import NormalPredictor
+import gensim
+import os
+import collections
+import smart_open
+import random
 from surprise import SVDpp,SVD
 from surprise import Dataset
 from surprise import Reader
@@ -13,7 +16,7 @@ from nltk.tokenize import word_tokenize
 app = flask.Flask(__name__)
 
 #pulling in dataset, item list
-with open('newdatalist.pkl', 'rb') as picklefile:
+with open('/Users/deven/Documents/pickleddata/projectfletcher/newdatalist.pkl', 'rb') as picklefile:
     itemdf = pickle.load(picklefile)
 with open('surprise_data.pkl', 'rb') as picklefile:
     surprisedf = pickle.load(picklefile)
@@ -28,7 +31,12 @@ for i in itemdf['Tea Name']:
     newname.append(line)
 itemdf['Tea Name'] = newname
 
-
+#initializing book list
+bookt = ['Emma by Jane Austen', 'Persuassion by Jane Austen', 'Sense and Sensibility by Jane Austen',\
+        'Poems by William Blake', 'The Little People of the Snow by William Bryant', 'The Adventures of Buster Bear by Thornton Burgress'\
+        'Alice in Wonderland by Lewis Carroll','The Ball and the Cross by G.K. Chesterton','The Wisdom of Father Brown by G.K. Chesterton'\
+        'The Ball and the Cross by G.K. Chesterton', 'The Parents Assistant by Maria Edgeworth','Moby Dick by Herman Melville',\
+        'Paradise Lost by John Milton', 'Shakespeares Works','Shakespeares Works','Shakespeares Works', 'Leaves of Grass by Walt Whitman']
 
 #Call function for top ratings
 from collections import defaultdict
@@ -66,11 +74,29 @@ def get_top_n(teaid,score, n=10):
     for uid, user_ratings in top_n.items():
         user_ratings.sort(key=lambda x: x[1], reverse=True)
         top_n[uid] = user_ratings[:n]
+    teadist = []
+    mindist = []
+    for i in top_n['user1']:
+        eudis=(euclidean_distances(itemdf[itemdf['Tea Name']==id]['Flavor Profile Reviews'], \
+        itemdf[itemdf['Tea Name']==i[0]]['Flavor Profile Reviews']))
+        teadist.append((i[0],eudist))
+    mindist = sorted(teadist, key=lambda x:x[1])
 
-        eudis=(euclidean_distances(newteaprofiledf[itemdf['Tea Name']==i]['Flavor Profile Reviews'], \
-        newteaprofiledf[newteaprofiledf['Tea Name']==k[0]]['Flavor Profile Reviews']))
-    return top_n
+    return mindist[0],mindist[1],mindist[2]
 
+def getBookrec(iid):
+    test_corpus = itemdf[itemdf['Tea Name']==iid]['Review Adj'].values
+    bookrec = gensim.models.doc2vec.Doc2Vec.load('bookrec.bin')
+    inferred_vector = bookrec.infer_vector(test_corpus)
+    sims = bookrec.docvecs.most_similar([inferred_vector])
+
+    tot=0
+    for ind, i in enumerate(doclen):
+        tot+=i
+        if sims[0][0]==btrain[ind][1]:
+            rec = bookt[ind-1]
+            break
+    return rec
 
 @app.route("/score", methods=["POST"])
 def score():
@@ -83,7 +109,8 @@ def score():
     data = flask.request.json
     color='#00dbfb'
     x = data["example"]
-    score = model.predict_proba([x])
+    rec1,rec2,rec3 = get_top_n(x[0],x[2])
+    bookrec= getBookrec(x[0])
     print(score)
     list1=[]
     for i in score[0]:
@@ -99,7 +126,7 @@ def score():
     print(label)
     print(color)
     # Put the result in a nice dict so we can send it as json
-    results = {"score":label,"color":color}
+    results = {"tearec1":rec1,"tearec2":rec2,"tearec3":rec3,"bookrec":bookrec}
     return flask.jsonify(results)
 
 #--------- RUN WEB APP SERVER ------------#
