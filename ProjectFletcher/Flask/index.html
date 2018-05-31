@@ -103,7 +103,6 @@
           <p class="space"></p>
           <div id="book">
         <svg id="mySvg" width="300" height="220">
-
           </div>
       </div>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -223,10 +222,7 @@
           d3.select('#score').text(new_label);
           getAndDrawChance(tea, type, score)
         });
-        var svg1 = d3.select('#book').append('svg').attr({
-          width: 300,
-          height: 220,
-        });
+
 
         var chart = d3.select("#bar_chart")
                            .append("svg:svg")
