@@ -47,10 +47,10 @@ bookt = ['Emma by Jane Austen', 'Persuassion by Jane Austen', 'Sense and Sensibi
 ​
 imagelocs = {'Emma by Jane Austen':'static/emma.jpg','Persuassion by Jane Austen':'static/persuassion.jpg','Sense and Sensibility by Jane Austen':'static/sense.jpg',\
 'Poems by William Blake':'static/blake.jpg','The Little People of the Snow by William Bryant':'static/bryant.jpg','The Adventures of Buster Bear by Thornton Burgress':'static/the-adventures-of-buster-bear.jpg',\
-'Alice in Wonderland by Lewis Carroll':'static/alice.jpg', 'The Ball and the Cross by G.K. Chesterton':'static/ball.jpg','The Wisdom of Father Brown by G.K. Chesterton':'static/fatherbrown.jpg',\
+'The Adventures of Buster Bear by Thornton BurgressAlice in Wonderland by Lewis Carroll':'static/alice.jpg', 'The Ball and the Cross by G.K. Chesterton':'static/ball.jpg','The Wisdom of Father Brown by G.K. Chesterton':'static/fatherbrown.jpg',\
 'The Parents Assistant by Maria Edgeworth':'static/edge.jpg','Moby Dick by Herman Melville':'static/moby.jpg','Paradise Lost by John Milton':'static/paradise.jpg',\
 'Shakespeares Works':'static/shake.jpg','Shakespeares Works':'static/shake.jpg','Shakespeares Works':'static/shake.jpg','Leaves of Grass by Walt Whitman':'static/leaves.jpg'}
-​
+
 ​
 #Call function for top ratings
 from collections import defaultdict
@@ -60,7 +60,7 @@ def get_top_n(teaid,score,qq, n=3):
     reader = Reader(rating_scale=(0, 100))
     algo=SVD()
     # The columns must correspond to user id, item id and ratings (in that order).
-    data = Dataset.load_from_df(newdf[['User Name', 'Tea Name', 'Score']], reader)
+    data = Dataset.load_from_df(qq[['User Name', 'Tea Name', 'Score']], reader)
     trainset = data.build_full_trainset()
     algo.fit(trainset)
 
@@ -102,7 +102,7 @@ def get_top_n(teaid,score,qq, n=3):
         teadist.append((i[0],eudist))
     mindist = sorted(teadist, key=lambda x:x[1])
 
-    return mindist
+    return mindist[0],mindist[1],mindist[2]
 
 
 
@@ -141,7 +141,7 @@ def score():
     bookrec= getBookrec(x[0])
     imgrec = imagelocs[bookrec]
     # Put the result in a nice dict so we can send it as json
-    results = {"tearec1":rec1,"tearec2":rec2,"tearec3":rec3,"bookrec":bookrec, 'img':img}
+    results = {"tearec1":rec1,"tearec2":rec2,"tearec3":rec3,"bookrec":bookrec, 'img':imgrec}
     return flask.jsonify(results)
 
 #--------- RUN WEB APP SERVER ------------#
