@@ -7,18 +7,13 @@ import smart_open
 import flask
 from flask import Flask
 import pickle
-import random
 from surprise import SVDpp,SVD
 from surprise import Dataset
 from surprise import Reader
 import nltk
 import re
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 from sklearn.metrics.pairwise import euclidean_distances
-​
-app = flask.Flask(__name__)
-​
+app = Flask(__name__)
 #pulling in dataset, item list
 with open('/Users/deven/Documents/pickleddata/projectfletcher/newdatalist.pkl', 'rb') as picklefile:
     itemdf = pickle.load(picklefile)
@@ -26,35 +21,35 @@ with open('/Users/deven/Documents/GitHub/Metis/ProjectFletcher/surprise_data.pkl
     newdf = pickle.load(picklefile)
 with open('/Users/deven/Documents/pickleddata/projectfletcher/btrain.pkl', 'rb') as picklefile:
     btrain = pickle.load(picklefile)
-with open('doclen.pkl', 'rb') as picklefile:
+with open('/Users/deven/Documents/GitHub/Metis/ProjectFletcher/doclen.pkl', 'rb') as picklefile:
     doclen = pickle.load(picklefile)
 #changing some tea names for easier calls
 itemdf = pd.DataFrame(itemdf)
 newname=[]
-import re
-​
+
 for i in itemdf['Tea Name']:
     line = re.sub('[!@#$\'\",]', '', i)
     newname.append(line)
 itemdf['Tea Name'] = newname
-​
+alist= []
+for i in itemdf['Flavor Profile Reviews']:
+        alist.append(i)
+teadf = pd.DataFrame(alist)
 #initializing book list
 bookt = ['Emma by Jane Austen', 'Persuassion by Jane Austen', 'Sense and Sensibility by Jane Austen',\
         'Poems by William Blake', 'The Little People of the Snow by William Bryant', 'The Adventures of Buster Bear by Thornton Burgress'\
         'Alice in Wonderland by Lewis Carroll','The Ball and the Cross by G.K. Chesterton','The Wisdom of Father Brown by G.K. Chesterton'\
         'The Ball and the Cross by G.K. Chesterton', 'The Parents Assistant by Maria Edgeworth','Moby Dick by Herman Melville',\
         'Paradise Lost by John Milton', 'Shakespeares Works','Shakespeares Works','Shakespeares Works', 'Leaves of Grass by Walt Whitman']
-​
+
 imagelocs = {'Emma by Jane Austen':'static/emma.jpg','Persuassion by Jane Austen':'static/persuassion.jpg','Sense and Sensibility by Jane Austen':'static/sense.jpg',\
 'Poems by William Blake':'static/blake.jpg','The Little People of the Snow by William Bryant':'static/bryant.jpg','The Adventures of Buster Bear by Thornton Burgress':'static/the-adventures-of-buster-bear.jpg',\
 'The Adventures of Buster Bear by Thornton BurgressAlice in Wonderland by Lewis Carroll':'static/alice.jpg', 'The Ball and the Cross by G.K. Chesterton':'static/ball.jpg','The Wisdom of Father Brown by G.K. Chesterton':'static/fatherbrown.jpg',\
 'The Parents Assistant by Maria Edgeworth':'static/edge.jpg','Moby Dick by Herman Melville':'static/moby.jpg','Paradise Lost by John Milton':'static/paradise.jpg',\
 'Shakespeares Works':'static/shake.jpg','Shakespeares Works':'static/shake.jpg','Shakespeares Works':'static/shake.jpg','Leaves of Grass by Walt Whitman':'static/leaves.jpg'}
-
-​
 #Call function for top ratings
 from collections import defaultdict
-def get_top_n(teaid,score,qq, n=3):
+def get_top_n(teaid,score,qq, n=10):
     # A reader is still needed but only the rating_scale param is requiered.
     qq = pd.concat([qq,pd.DataFrame([[score,teaid, 'user1']], columns = ['Score', 'Tea Name', 'User Name'])], ignore_index=True)
     reader = Reader(rating_scale=(0, 100))
@@ -92,16 +87,16 @@ def get_top_n(teaid,score,qq, n=3):
     # Then sort the predictions for each user and retrieve the k highest ones.
     for uid, user_ratings in top_n.items():
         user_ratings.sort(key=lambda x: x[1], reverse=True)
-        top_n[uid] = user_ratings[:n]
+        top_n[uid] = user_ratings[:10]
     teadist = []
     mindist = []
     eudist=0
+
     for i in top_n['user1']:
-        eudis=(euclidean_distances(teadf.iloc[itemdf[itemdf['Tea Name']==x[0]].index,:], \
-            teadf.iloc[itemdf[itemdf['Tea Name']==i[0]].index,:]))
+        eudis=(euclidean_distances(teadf.iloc[itemdf[itemdf['Tea Name']==teaid].index,:], \
+            teadf.iloc[(itemdf[itemdf['Tea Name']==i[0]].index),:]))
         teadist.append((i[0],eudist))
     mindist = sorted(teadist, key=lambda x:x[1])
-
     return mindist[0],mindist[1],mindist[2]
 
 
@@ -141,7 +136,7 @@ def score():
     bookrec= getBookrec(x[0])
     imgrec = imagelocs[bookrec]
     # Put the result in a nice dict so we can send it as json
-    results = {"tearec1":rec1,"tearec2":rec2,"tearec3":rec3,"bookrec":bookrec, 'img':imgrec}
+    results = {"tearec1":rec1[0],"tearec2":rec2[0],"tearec3":rec3[0],"bookrec":bookrec, 'img':imgrec}
     return flask.jsonify(results)
 
 #--------- RUN WEB APP SERVER ------------#

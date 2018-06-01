@@ -67,13 +67,13 @@
        color: steelblue;
      }
   #chart_area {
-    width: 300px;
+    width: 600px;
     float:left;
     margin-left: 200px;
   }
   #Book_rec {
     float: middle; /* if you don't want #second to wrap below #first */
-    margin-left: 800px;
+    margin-left: 1200px;
 }
 
     </style>
@@ -185,7 +185,7 @@
                           d3.select("#bookr")
                               .text(bookrec);
                           d3.select("#mySvg")
-                              .attr("xlink:href", bookimg);
+                          .attr("xlink:href", bookimg);
                         },
                         error: function (result) {
                         }
@@ -196,10 +196,10 @@
         var dropDown2 = d3.select("#dropdown2");
         var dropDown3 = d3.select("#dropdown3");
 
-        d3.selectAll("#mySvg").append("svg:image")
-        .attr("xlink:href", bookimg)
-        .attr("width", 300)
-        .attr("height", 200);
+      var mySvg=d3.selectAll("#mySvg").append("svg:image")
+                  .attr("xlink:href", bookimg)
+                  .attr("width", 300)
+                  .attr("height", 200);
 
         dropDown.on("change", function() {
 
@@ -226,7 +226,7 @@
 
         var chart = d3.select("#bar_chart")
                            .append("svg:svg")
-                           .attr("width", 500)
+                           .attr("width", 900)
                            .attr("height", 220);
 
              var bar = chart.append("g")
@@ -235,7 +235,7 @@
             bar.append("svg:rect")
                 .attr("id", "chancebar")
                 .attr("class", "bar")
-                .attr("width", 800)
+                .attr("width", 1000)
                 .attr("height", 500)
 
              bar.append("text")
